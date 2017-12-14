@@ -16,7 +16,7 @@ SRC := spawn_for.cpp
 
 all : primes
 
-primes : rimes.cpp
+primes : primes.cpp
 	$(CXX) $(CXXFLAGS) -o primes primes.cpp
 
 
