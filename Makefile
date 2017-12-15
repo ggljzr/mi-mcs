@@ -12,13 +12,10 @@ CXXFLAGS += -march=native
 
 CXXFLAGS += -fcilkplus -lcilkrts
 
-SRC := spawn_for.cpp
-
 all : primes
 
 primes : primes.cpp
 	$(CXX) $(CXXFLAGS) -o primes primes.cpp
-
 
 clean :
 	rm -f primes
