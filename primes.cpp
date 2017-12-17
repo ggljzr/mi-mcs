@@ -1,10 +1,15 @@
 #include <cstdio>
 #include <math.h>
+#include <stdint.h>
 
-int* sieve(int n){
-    int * primes = new int[n];
+#include <cilk/cilk.h>
+
+#define CACHE_SIZE 327680
+
+int64_t* sieve(int64_t n){
+    int64_t * primes = new int64_t[n];
     int i = 1;
-    int p = 3;
+    int64_t p = 3;
     primes[0] = 2;
 
     while(i < n){
@@ -24,9 +29,9 @@ int* sieve(int n){
 
 int main(int argc, char ** argv){
 
-    int n = 1000000;
+    int n = 1000;
 
-    int * primes = sieve(n);
+    int64_t * primes = sieve(n);
 
     printf("%d\n", primes[464]);
     return 0;
