@@ -30,6 +30,6 @@ int main(int argc, char ** argv){
 
     int * primes = sieve(n);
 
-    printf("%d\n", primes[464]);
+    printf("%d\n", primes[n - 1]);
     return 0;
 }
