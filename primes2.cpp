@@ -5,6 +5,9 @@
 #include <cilk/cilk.h>
 #include <vector>
 
+//this implementation is
+//faster than primes_serial.cpp
+//but more memory intesive
 void find_primes(int n)
 {
     char * sieve = new char[n + 1];
@@ -15,7 +18,6 @@ void find_primes(int n)
     {
         if(sieve[i] == 1)
         {
-            primes.push_back(i);
             for(int p = i * i; p <= n; p += i)
             {
                 sieve[p] = 0;
@@ -23,7 +25,9 @@ void find_primes(int n)
         }
     }
 
-    for(int i = sqrt(n); i <= n; i++){
+    primes.push_back(2);
+
+    for(int i = 3; i <= n; i+= 2){
         if(sieve[i] == 1)
             primes.push_back(i);
     }
