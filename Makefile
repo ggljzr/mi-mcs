@@ -12,10 +12,13 @@ CXXFLAGS += -march=native
 
 CXXFLAGS += -fcilkplus -lcilkrts
 
-all : primes
+all : primes primes2
 
 primes : primes.cpp
-	$(CXX) $(CXXFLAGS) -o primes primes.cpp
+	$(CXX) $(CXXFLAGS) -o primes.out primes.cpp
+
+primes2 : primes2.cpp
+	$(CXX) $(CXXFLAGS) -o primes2.out primes2.cpp
 
 clean :
-	rm -f primes
+	rm -f *.out
