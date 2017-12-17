@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include <cilk/cilk.h>
@@ -33,11 +34,18 @@ void find_primes(int n)
             printf("%d\n", primes[i]);
         }
     }
+
+    printf("found %d primes\n", primes.size());
+
+    delete [] sieve;
 }
 
 int main(int argc, char ** argv){
 
-    int n = 1000;
+    int n = 100000;
+
+    if(argc > 1)
+        n = atoi(argv[1]);
 
     find_primes(n);
     return 0;
