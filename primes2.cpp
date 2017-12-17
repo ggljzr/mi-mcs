@@ -5,6 +5,18 @@
 #include <cilk/cilk.h>
 #include <vector>
 
+void do_work()
+{
+    int a = 0;
+}
+
+void for_proc(){
+    printf("Doing for_proc...\n");
+    cilk_for(int i = 0; i < 1000; i++){
+        do_work();
+    }
+}
+
 //this implementation is
 //faster than primes_serial.cpp
 //but more memory intesive
@@ -12,9 +24,14 @@ void find_primes(int n)
 {
     char * sieve = new char[n + 1];
     std::vector<int> primes;
-    sieve[0:n + 1] = 1;
+    //sieve[0:n + 1] = 1; //it segfaults on compilation when using cilk_for in function
 
-    for(int i = 2; i < sqrt(n); i += 1)
+    cilk_for(int i = 0; i < n + 1; i++)
+        sieve[i] = 1;
+
+    int sqrtn = (int) sqrt(n);
+
+    cilk_for(int i = 2; i < sqrtn; i++)
     {
         if(sieve[i] == 1)
         {
