@@ -5,18 +5,6 @@
 #include <cilk/cilk.h>
 #include <vector>
 
-void do_work()
-{
-    int a = 0;
-}
-
-void for_proc(){
-    printf("Doing for_proc...\n");
-    cilk_for(int i = 0; i < 1000; i++){
-        do_work();
-    }
-}
-
 //this implementation is
 //faster than primes_serial.cpp
 //but more memory intesive
