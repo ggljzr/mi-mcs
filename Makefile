@@ -1,5 +1,6 @@
 # Makefile for Unix builds
 
+#CXX := /home/ggljzr/cilkplus-install/bin/g++
 CXX := g++
 
 # Default to maximum optimization
