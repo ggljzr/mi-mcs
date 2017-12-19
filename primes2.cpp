@@ -23,7 +23,7 @@ void find_primes(int n)
     {
         if(sieve[i] == 1)
         {
-            for(int p = i * i; p <= n; p += i)
+            cilk_for(int p = i * i; p <= n; p += i)
             {
                 sieve[p] = 0;
             }
