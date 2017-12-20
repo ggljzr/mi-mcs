@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <cstring>
 
 #include <cilk/cilk.h>
 #include <vector>
@@ -11,28 +12,42 @@
 void find_primes(int n)
 {
     char * sieve = new char[n + 1];
-    std::vector<int> primes;
-    //sieve[0:n + 1] = 1; //it segfaults on compilation when using cilk_for in function
+    std::vector<unsigned int> primes;
+    //sieve[0:n + 1] = 1; //slower than cilk_for
 
     cilk_for(int i = 0; i < n + 1; i++)
         sieve[i] = 1;
 
     int sqrtn = (int) sqrt(n);
 
-    cilk_for(int i = 2; i < sqrtn; i++)
+    for(unsigned int i = 2; i < sqrtn; i++)
     {
         if(sieve[i] == 1)
         {
-            cilk_for(int p = i * i; p <= n; p += i)
+            /*
+            it seems optimal to parallelize this cycle only
+            outter cycle does not have enough iterations
+            that do something
+            */
+            cilk_for(unsigned int p = i * i; p <= n; p += i)
             {
                 sieve[p] = 0;
             }
         }
     }
 
+    /*
+    sequentially pushing primes to vector
+    seems faster than using cilk reducer with
+    append operator
+
+    better solution would be processing sieve array
+    in parallel, while pushing to local stacks,
+    then sequentially merge stacks
+    */
     primes.push_back(2);
 
-    for(int i = 3; i <= n; i+= 2){
+    for(unsigned int i = 3; i <= n; i+= 2){
         if(sieve[i] == 1)
             primes.push_back(i);
     }
@@ -44,7 +59,8 @@ void find_primes(int n)
         }
     }
 
-    printf("found %d primes\n", primes.size());
+    printf("%lu primes found\n", primes.size());
+    printf("last prime: %d", primes.back());
 
     delete [] sieve;
 }
