@@ -13,10 +13,7 @@ CXXFLAGS += -march=native
 
 CXXFLAGS += -fcilkplus -lcilkrts
 
-all : primes primes2 primes_serial
-
-primes : primes.cpp
-	$(CXX) $(CXXFLAGS) -o primes.out primes.cpp
+all : primes2 primes_serial
 
 primes2 : primes2.cpp
 	$(CXX) $(CXXFLAGS) -o primes2.out primes2.cpp
