@@ -61,6 +61,27 @@ void find_primes(unsigned int n)
     	}
     }
 
+    /* 
+    program takes about 3.2 seconds for 10^9 primes up to this part
+    (creating the primes sieve and findinx max prime)
+
+    iterating trough sieve array and writing primes takes 
+    about 5 to 6 seconds -- main bottleneck is file operations
+    (total time = 9.2 seconds)
+
+    iterating through sieve array without writing primes to
+    a file, only counting them, takes about 0.6 seconds
+    (total time = 3.8 seconds)
+
+    should probalby focus on creating sieve array faster,
+    since little can be done abou file operations (maybe
+    ostream reducer)
+
+    for cycle that iterates through sieve array is not a
+    good candidate for paralellization with cilk_for
+    since few iterations do some actual work
+    */
+
     FILE * primes_file = fopen(PRIMES_FILE_PATH, "w");
     fprintf(primes_file, "2\n");
 
