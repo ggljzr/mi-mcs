@@ -6,10 +6,12 @@
 #include <cilk/cilk.h>
 #include <vector>
 
+#define PRIMES_FILE_PATH "primes.txt"
+
 //this implementation is
 //faster than primes_serial.cpp
 //but more memory intesive
-void find_primes(int n)
+void find_primes(unsigned int n)
 {
     char * sieve = new char[n + 1];
     std::vector<unsigned int> primes;
@@ -45,22 +47,38 @@ void find_primes(int n)
     in parallel, while pushing to local stacks,
     then sequentially merge stacks
     */
-    primes.push_back(2);
+
+    unsigned int max_prime = 2;
+    unsigned int primes_count = 1;
+    //cilk::reducer< cilk::op_add<int> > primes_count(1);
+
+    for(unsigned int i = n; i >= 3; i--)
+    {
+    	if(sieve[i] == 1)
+    	{
+    		max_prime = i;
+    		break;
+    	}
+    }
+
+    FILE * primes_file = fopen(PRIMES_FILE_PATH, "w");
+    fprintf(primes_file, "2\n");
+    fclose(primes_file);
+
+    primes_file = fopen(PRIMES_FILE_PATH, "a");
 
     for(unsigned int i = 3; i <= n; i+= 2){
         if(sieve[i] == 1)
-            primes.push_back(i);
-    }
-
-    if(n <= 1000){
-        for(size_t i = 0; i < primes.size(); i++)
         {
-            printf("%d\n", primes[i]);
-        }
+            fprintf(primes_file, "%d\n", i);
+        	primes_count += 1;
+       	}
     }
 
-    printf("%lu primes found\n", primes.size());
-    printf("last prime: %d", primes.back());
+    fclose(primes_file);
+
+    printf("%d primes found\n", primes_count);
+    printf("last prime: %d", max_prime);
 
     delete [] sieve;
 }
