@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include <cilk/cilk.h>
+#include <cilk/reducer_opadd.h>
 #include <vector>
 
 #define PRIMES_FILE_PATH "primes.txt"
@@ -49,8 +50,6 @@ void find_primes(unsigned int n)
     */
 
     unsigned int max_prime = 2;
-    unsigned int primes_count = 1;
-    //cilk::reducer< cilk::op_add<int> > primes_count(1);
 
     for(unsigned int i = n; i >= 3; i--)
     {
@@ -80,10 +79,18 @@ void find_primes(unsigned int n)
     for cycle that iterates through sieve array is not a
     good candidate for paralellization with cilk_for
     since few iterations do some actual work
+
+    using cilk_for and op_add reducer to count primes
+    (without writing them into a file) is slightly faster
+    than sequential solution
+    (total time = 3.3 seconds)
     */
 
     FILE * primes_file = fopen(PRIMES_FILE_PATH, "w");
     fprintf(primes_file, "2\n");
+
+    unsigned int primes_count = 1;
+    //cilk::reducer< cilk::op_add<int> > primes_count(1);
 
     for(unsigned int i = 3; i <= max_prime; i+= 2){
         if(sieve[i] == 1)
@@ -95,7 +102,7 @@ void find_primes(unsigned int n)
 
     fclose(primes_file);
 
-    printf("%d primes found\n", primes_count);
+    printf("%d primes found\n", primes_count); //use primes_count.get_value() with reducer
     printf("last prime: %d", max_prime);
 
     delete [] sieve;
