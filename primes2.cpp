@@ -64,7 +64,7 @@ void find_primes(unsigned int n)
     FILE * primes_file = fopen(PRIMES_FILE_PATH, "w");
     fprintf(primes_file, "2\n");
 
-    for(unsigned int i = 3; i <= n; i+= 2){
+    for(unsigned int i = 3; i <= max_prime; i+= 2){
         if(sieve[i] == 1)
         {
             fprintf(primes_file, "%d\n", i);
