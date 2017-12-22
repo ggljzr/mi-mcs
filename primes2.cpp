@@ -63,9 +63,6 @@ void find_primes(unsigned int n)
 
     FILE * primes_file = fopen(PRIMES_FILE_PATH, "w");
     fprintf(primes_file, "2\n");
-    fclose(primes_file);
-
-    primes_file = fopen(PRIMES_FILE_PATH, "a");
 
     for(unsigned int i = 3; i <= n; i+= 2){
         if(sieve[i] == 1)
