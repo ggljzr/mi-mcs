@@ -4,8 +4,10 @@
 #include <cstring>
 
 #include <cilk/cilk.h>
+#include <cilk/reducer_ostream.h>
 #include <cilk/reducer_opadd.h>
-#include <vector>
+
+#include <fstream>
 
 #define PRIMES_FILE_PATH "primes.txt"
 
@@ -15,7 +17,6 @@
 void find_primes(unsigned int n)
 {
     char * sieve = new char[n + 1];
-    std::vector<unsigned int> primes;
     //sieve[0:n + 1] = 1; //slower than cilk_for
 
     cilk_for(int i = 0; i < n + 1; i++)
@@ -84,25 +85,39 @@ void find_primes(unsigned int n)
     (without writing them into a file) is slightly faster
     than sequential solution
     (total time = 3.3 seconds)
+
+    writing primes with cilk_for, while using op_add reducer
+    to count primes and ostream reducer to write them
+    seems most efficient
+    (total time = 4.11 seconds, may vary more than other cases)
     */
 
-    FILE * primes_file = fopen(PRIMES_FILE_PATH, "w");
-    fprintf(primes_file, "2\n");
+    cilk::reducer< cilk::op_add<unsigned int> > primes_count(1);
 
-    unsigned int primes_count = 1;
-    //cilk::reducer< cilk::op_add<int> > primes_count(1);
+    std::ofstream primes_file(PRIMES_FILE_PATH);
+    cilk::reducer_ostream hyper_out(primes_file);
 
-    for(unsigned int i = 3; i <= max_prime; i+= 2){
+    /*
+    note that example from: 
+    https://www.cilkplus.org/tutorial-reducer-ostream
+    wont compile, use example described in reducer_ostream.h file
+    on rsj1.fit.cvut.cz -- its probably older version
+
+    (/usr/lib/gcc/x86_64-linux-gnu/5/include/cilk/reducer_ostream.h)
+    */
+
+    *hyper_out << 2 << std::endl;
+    cilk_for(unsigned int i = 3; i <= max_prime; i+= 2){
         if(sieve[i] == 1)
         {
-            fprintf(primes_file, "%d\n", i);
-        	primes_count += 1;
+            *hyper_out << i << std::endl;
+            *primes_count += 1;
        	}
     }
 
-    fclose(primes_file);
+    primes_file.close();
 
-    printf("%d primes found\n", primes_count); //use primes_count.get_value() with reducer
+    printf("%d primes found\n", primes_count.get_value());
     printf("last prime: %d", max_prime);
 
     delete [] sieve;
