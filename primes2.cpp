@@ -7,6 +7,11 @@
 #include <cilk/reducer_ostream.h>
 #include <cilk/reducer_opadd.h>
 
+#include <cilk/cilk_api.h>
+
+#include <unistd.h>
+#include <ctype.h>
+
 #include <fstream>
 
 #define PRIMES_FILE_PATH "primes.txt"
@@ -16,6 +21,7 @@
 //but more memory intesive
 void find_primes(unsigned int n)
 {
+
     char * sieve = new char[n + 1];
     //sieve[0:n + 1] = 1; //slower than cilk_for
 
@@ -118,17 +124,52 @@ void find_primes(unsigned int n)
     primes_file.close();
 
     printf("%d primes found\n", primes_count.get_value());
-    printf("last prime: %d", max_prime);
+    printf("prime: %d", max_prime);
 
     delete [] sieve;
 }
 
 int main(int argc, char ** argv){
-
+    
+    char * tvalue = NULL;
+    int c;
     int n = 100000;
 
-    if(argc > 1)
-        n = atoi(argv[1]);
+    while ((c = getopt (argc, argv, "t:")) != -1)
+    {
+        switch(c)
+        {
+            case 't':
+                tvalue = optarg;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if(tvalue != NULL)
+    {
+        printf("Setting worker count to %s\n", tvalue);
+        if (0!= __cilkrts_set_param("nworkers", tvalue))
+        {
+            printf("Failed to set worker count\n");
+            return 1;
+        }
+    }
+    else
+    {
+        printf("Using default worker count\n");
+    }
+
+    if(optind < argc)
+    {
+        n = atoi(argv[optind]);
+    }
+
+    printf("Calculating primes up to %d (%.03e)\n", n, (double)n);
+
+    int n_workers = __cilkrts_get_nworkers();
+    printf("Running with %d workers...\n", n_workers);
 
     find_primes(n);
     return 0;
