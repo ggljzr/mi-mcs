@@ -89,6 +89,10 @@ cilk_for(unsigned int i = 3; i <= max_prime; i+= 2){
 primes_file.close();
 ```
 
+Reducery zajistí výlučný přístup ke zdrojům pomocí paralelní redukce, a cyklus je tedy možné bez obav paralelizovat pomocí `cilk_for`.
 
 
+## Odkazy
 
+* [Článek](http://create.stephan-brumme.com/eratosthenes/) o paralelizaci Eratosthenova síta pomocí [OpenMP](http://www.openmp.org/) -- kromě zmíněného omezení na lichá čísla popisuje také segmentaci výpočtu podle velikosti cache procesoru.
+* [Implementace](http://primesieve.org/segmented_sieve.html) segmentovaného Eratosthenova síta, kterou jsem použil jako referenci k ověření výsledků.
