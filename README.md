@@ -4,7 +4,7 @@ Paralelní počítání prvočísel pomocí [Cilk Plus](https://www.cilkplus.org
 
 ## Kompilace
 
-Pokud defaultní GCC (`which gcc`) nepodporuje rozšíření Cilk, je nutné v Makefile specifikovat cestu k Cilk kompilátoru.
+Pokud defaultní G++ (`which g++`) nepodporuje rozšíření Cilk, je nutné v Makefile specifikovat cestu k Cilk kompilátoru.
 
 ## Použití
 
@@ -58,17 +58,36 @@ Takovýto kód lze poměrně jednoduše paralelizovat pomocí klíčového slova
 
 Paralelizaci vytváření síta jsem provedl velmi přímočaře, pouze jsem doplnil `cilk_for` k cyklu, který provádí odstraňování násobků:
 
-```
+```cpp
 cilk_for(unsigned int p = i * i; p <= n; p += inc)
-            {
-                sieve[p / 2] = 0;
-            }
+{
+	sieve[p / 2] = 0;
+}
 ```
 
 Paralelizace vnějšího cyklu se nejevila příliš efektivní, pravděpodobně kvůli relativně malému počtu iterací cyklu a nevyvážené časové náročnosti jednotlivých iterací (iterace pro neprvočíselná * i * hned skončí).
 
 `cilk_for` jsem také použil k počáteční inicializaci síta jedničkami. Zde se tento způsob zdál rychlejší než použití [Cilk Array Notatnion](https://www.cilkplus.org/tutorial-array-notation), tedy `sieve[0:sieve_size] = 1` nebo použití funkce [memset](http://www.cplusplus.com/reference/cstring/memset/).
 
+Po vytvoření síta je potřeba pole projít a nalezená prvočísla spočítat a zpsat do souboru. Zde jsem opět použil `cilk_for`. Vzhledem k tomu, že jak sčítání prvočísel, tak jejich zápis do souboru jsou citlivé na zpracování více vlákny, použil jsem v obou případech [reducery](https://www.cilkplus.org/tutorial-cilk-plus-reducers). Konkrétně `reducer_opadd` pro sčítání a `reducer_ostream` pro zápis:
+
+```cpp
+cilk::reducer< cilk::op_add<unsigned int> > primes_count(1);
+
+std::ofstream primes_file(PRIMES_FILE_PATH);
+cilk::reducer_ostream hyper_out(primes_file);
+
+*hyper_out << 2 << std::endl;
+cilk_for(unsigned int i = 3; i <= max_prime; i+= 2){
+    if(sieve[i / 2] == 1)
+    {
+    	*hyper_out << i << std::endl;
+        *primes_count += 1;
+    }
+}
+
+primes_file.close();
+```
 
 
 
