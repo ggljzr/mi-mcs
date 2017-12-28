@@ -33,16 +33,43 @@ Jako síto jsem nejprve použil binární pole délky *n*, kde *n* je uživatele
 Dále jsem algoritmus upravil, aby pracoval pouze s lichými čísly (tedy zpracovával pouze liché násobky). Díky tomu se zmenšily paměťové nároky a došlo také ke zrychlení programu. Sekvenční tvorba síta tedy vypadá takto:
 
 ```cpp
+unsigned int sieve_size = (n / 2);
+char * sieve = new char[sieve_size];
+
+for(int i = 0; i < sieve_size; i++)
+	sieve[i] = 1;
+
 for(unsigned int i = 3; i <= sqrt(n); i += 2)
     {
         if(sieve[i / 2] == 1)
         {
             unsigned int inc = 2 * i; //preskakovani sudych nasobku
-            cilk_for(unsigned int p = i * i; p <= n; p += inc)
+            for(unsigned int p = i * i; p <= n; p += inc)
             {
                 sieve[p / 2] = 0;
             }
         }
     }
 ```
+
+Takovýto kód lze poměrně jednoduše paralelizovat pomocí klíčového slova [cilk_for](https://www.cilkplus.org/tutorial-cilk-plus-keywords#cilk_for).
+
+## Paralelizace
+
+Paralelizaci vytváření síta jsem provedl velmi přímočaře, pouze jsem doplnil `cilk_for` k cyklu, který provádí odstraňování násobků:
+
+```
+cilk_for(unsigned int p = i * i; p <= n; p += inc)
+            {
+                sieve[p / 2] = 0;
+            }
+```
+
+Paralelizace vnějšího cyklu se nejevila příliš efektivní, pravděpodobně kvůli relativně malému počtu iterací cyklu a nevyvážené časové náročnosti jednotlivých iterací (iterace pro neprvočíselná * i * hned skončí).
+
+`cilk_for` jsem také použil k počáteční inicializaci síta jedničkami. Zde se tento způsob zdál rychlejší než použití [Cilk Array Notatnion](https://www.cilkplus.org/tutorial-array-notation), tedy `sieve[0:sieve_size] = 1` nebo použití funkce [memset](http://www.cplusplus.com/reference/cstring/memset/).
+
+
+
+
 
