@@ -55,16 +55,6 @@ void find_primes(unsigned int n)
         }
     }
 
-    /*
-    sequentially pushing primes to vector
-    seems faster than using cilk reducer with
-    append operator
-
-    better solution would be processing sieve array
-    in parallel, while pushing to local stacks,
-    then sequentially merge stacks
-    */
-
     unsigned int max_prime = 2;
 
     for(unsigned int i = n; i >= 3; i--)
