@@ -37,7 +37,7 @@ unsigned int sieve_size = (n / 2);
 char * sieve = new char[sieve_size];
 
 for(int i = 0; i < sieve_size; i++)
-	sieve[i] = 1;
+    sieve[i] = 1;
 
 for(unsigned int i = 3; i <= sqrt(n); i += 2)
 {
@@ -61,7 +61,7 @@ Paralelizaci vytváření síta jsem provedl velmi přímočaře, pouze jsem dop
 ```cpp
 cilk_for(unsigned int p = i * i; p <= n; p += inc)
 {
-	sieve[p / 2] = 0;
+    sieve[p / 2] = 0;
 }
 ```
 
