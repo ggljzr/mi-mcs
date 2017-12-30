@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <cstring>
+#include <time.h>
+#include <sys/time.h>
 
 #include <cilk/cilk.h>
 #include <cilk/reducer_ostream.h>
@@ -15,6 +17,23 @@
 #include <fstream>
 
 #define PRIMES_FILE_PATH "primes.txt"
+
+/*
+Time measuring from Cilk Karatsuba Example
+(https://www.cilkplus.org/sites/default/files/code_samples/karatsuba-v1.0.zip)
+Author: Barry Tannenbaum
+*/
+static inline unsigned long long cilk_getticks()
+{
+     struct timeval t;
+     gettimeofday(&t, 0);
+     return t.tv_sec * 1000000ULL + t.tv_usec;
+}
+
+static inline double cilk_ticks_to_miliseconds(unsigned long long ticks)
+{
+     return ticks * 1.0e-3;
+}
 
 //this implementation is
 //faster than primes_serial.cpp
@@ -92,7 +111,7 @@ void find_primes(unsigned int n)
     primes_file.close();
 
     fprintf(stderr, "%d primes found\n", primes_count.get_value());
-    printf("prime: %d", max_prime);
+    printf("prime: %d\n", max_prime);
 
     delete [] sieve;
 }
@@ -139,6 +158,12 @@ int main(int argc, char ** argv){
     int n_workers = __cilkrts_get_nworkers();
     fprintf(stderr, "Running with %d workers...\n", n_workers);
 
+    clock_t start = cilk_getticks();
     find_primes(n);
+    clock_t stop = cilk_getticks();
+
+    double total_time = cilk_ticks_to_miliseconds(stop - start);
+    printf("Time: %f\n", total_time);
+
     return 0;
 }
