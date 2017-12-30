@@ -40,16 +40,16 @@ for(int i = 0; i < sieve_size; i++)
 	sieve[i] = 1;
 
 for(unsigned int i = 3; i <= sqrt(n); i += 2)
+{
+    if(sieve[i / 2] == 1)
     {
-        if(sieve[i / 2] == 1)
+        unsigned int inc = 2 * i; //preskakovani sudych nasobku
+        for(unsigned int p = i * i; p <= n; p += inc)
         {
-            unsigned int inc = 2 * i; //preskakovani sudych nasobku
-            for(unsigned int p = i * i; p <= n; p += inc)
-            {
-                sieve[p / 2] = 0;
-            }
+            sieve[p / 2] = 0;
         }
     }
+}
 ```
 
 Takovýto kód lze poměrně jednoduše paralelizovat pomocí klíčového slova [cilk_for](https://www.cilkplus.org/tutorial-cilk-plus-keywords#cilk_for).
@@ -78,7 +78,8 @@ std::ofstream primes_file(PRIMES_FILE_PATH);
 cilk::reducer_ostream hyper_out(primes_file);
 
 *hyper_out << 2 << std::endl;
-cilk_for(unsigned int i = 3; i <= max_prime; i+= 2){
+cilk_for(unsigned int i = 3; i <= max_prime; i+= 2)
+{
     if(sieve[i / 2] == 1)
     {
     	*hyper_out << i << std::endl;
