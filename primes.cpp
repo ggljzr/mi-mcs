@@ -163,7 +163,7 @@ int main(int argc, char ** argv){
     clock_t stop = cilk_getticks();
 
     double total_time = cilk_ticks_to_miliseconds(stop - start);
-    printf("Time: %f\n", total_time);
+    printf("Time: %f ms\n", total_time);
 
     return 0;
 }
