@@ -91,7 +91,7 @@ void find_primes(unsigned int n)
 
     primes_file.close();
 
-    printf("%d primes found\n", primes_count.get_value());
+    fprintf(stderr, "%d primes found\n", primes_count.get_value());
     printf("prime: %d", max_prime);
 
     delete [] sieve;
@@ -117,16 +117,16 @@ int main(int argc, char ** argv){
 
     if(tvalue != NULL)
     {
-        printf("Setting worker count to %s\n", tvalue);
+        fprintf(stderr, "Setting worker count to %s\n", tvalue);
         if (0!= __cilkrts_set_param("nworkers", tvalue))
         {
-            printf("Failed to set worker count\n");
+            fprintf(stderr, "Failed to set worker count\n");
             return 1;
         }
     }
     else
     {
-        printf("Using default worker count\n");
+        fprintf(stderr, "Using default worker count\n");
     }
 
     if(optind < argc)
@@ -134,10 +134,10 @@ int main(int argc, char ** argv){
         n = atoi(argv[optind]);
     }
 
-    printf("Calculating primes up to %d (%.03e)\n", n, (double)n);
+    fprintf(stderr, "Calculating primes up to %d (%.03e)\n", n, (double)n);
 
     int n_workers = __cilkrts_get_nworkers();
-    printf("Running with %d workers...\n", n_workers);
+    fprintf(stderr, "Running with %d workers...\n", n_workers);
 
     find_primes(n);
     return 0;
