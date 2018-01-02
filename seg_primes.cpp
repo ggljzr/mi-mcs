@@ -4,6 +4,7 @@
 #include <cstring>
 #include <time.h>
 #include <sys/time.h>
+#include <typeinfo>
 
 #include <cilk/cilk.h>
 #include <cilk/reducer_ostream.h>
@@ -17,7 +18,7 @@
 
 #include <fstream>
 
-#define CACHE_SIZE 32768
+#define CACHE_SIZE 65536
 #define PRIMES_FILE_PATH "primes.txt"
 
 #define MIN(A, B) (A < B) ? A : B
@@ -54,7 +55,8 @@ unsigned int first_odd_multiple(unsigned int n, int m)
 }
 
 
-unsigned int process_segment(unsigned int from, unsigned int to, cilk::reducer_ostream *hyper_out)
+unsigned int process_segment(unsigned int from, unsigned int to, 
+    cilk::reducer_ostream *hyper_out)
 {
     unsigned int sieve_size = (to - from) / 2;
     char * sieve = new char[sieve_size];
@@ -81,24 +83,34 @@ unsigned int process_segment(unsigned int from, unsigned int to, cilk::reducer_o
         }
     }
 
-    unsigned int primes_count = 0;
+    unsigned int max_prime = 2;
     unsigned int start = from;
     if(start % 2 == 0)
         start++;
-    
+
+
+    for(unsigned int i = to; i >= start; i--)
+    {
+        unsigned int index = (i - from) / 2;
+        if(sieve[index] == 1)
+        {
+            max_prime = i;
+            break;
+        }
+    }
+
     for(unsigned int i = start; i <= to; i += 2)
     {
         unsigned int index = (i - from) / 2;
         if(sieve[index] == 1)
         {
-            primes_count += 1;
             *hyper_out << i << std::endl;
         }
     }
 
     delete [] sieve;
 
-    return primes_count;
+    return max_prime;
 }
 
 void find_primes_segmented(unsigned int n, unsigned int block_size)
@@ -109,7 +121,7 @@ void find_primes_segmented(unsigned int n, unsigned int block_size)
     when file "primes.txt" doesnt exist
     */
 
-    cilk::reducer< cilk::op_add<unsigned int> > primes_count(1);
+    cilk::reducer< cilk::op_max<unsigned int> > max_prime;
     std::ofstream primes_file(PRIMES_FILE_PATH);
     cilk::reducer_ostream hyper_out(primes_file);
 
@@ -118,10 +130,10 @@ void find_primes_segmented(unsigned int n, unsigned int block_size)
     cilk_for(unsigned int i = 2; i <= n; i += block_size)
     {
         unsigned int to = MIN(n, i + block_size);
-        *primes_count += process_segment(i, to, &hyper_out);
+        max_prime->calc_max(process_segment(i, to, &hyper_out));
     }
 
-    printf("%d\n", primes_count.get_value());
+    printf("prime: %d\n", max_prime.get_value());
 }
 
 int main(int argc, char ** argv){
