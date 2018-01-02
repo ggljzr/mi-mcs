@@ -179,12 +179,12 @@ int main(int argc, char ** argv){
     int n_workers = __cilkrts_get_nworkers();
     fprintf(stderr, "Running with %d workers...\n", n_workers);
 
-    //clock_t start = cilk_getticks();
+    clock_t start = cilk_getticks();
     find_primes_segmented(n, CACHE_SIZE);
-    //clock_t stop = cilk_getticks();
+    clock_t stop = cilk_getticks();
 
-    //double total_time = cilk_ticks_to_miliseconds(stop - start);
-    //printf("Time: %f ms\n", total_time);
+    double total_time = cilk_ticks_to_miliseconds(stop - start);
+    printf("Time: %f ms\n", total_time);
 
     return 0;
 }
