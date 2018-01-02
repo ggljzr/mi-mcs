@@ -4,7 +4,6 @@
 #include <cstring>
 #include <time.h>
 #include <sys/time.h>
-#include <typeinfo>
 
 #include <cilk/cilk.h>
 #include <cilk/reducer_ostream.h>
@@ -117,8 +116,10 @@ void find_primes_segmented(unsigned int n, unsigned int block_size)
 {
     /*
     note that for some reason program is noticably faster
-    (1.5 s versus 0.9 s for n = 10^9, block_size = 32768 )
+    (1.7 s versus 1.2 s for n = 10^9, block_size = 32768 )
     when file "primes.txt" doesnt exist
+
+    for block_size = 65536 this problem seems less apparent
     */
 
     cilk::reducer< cilk::op_max<unsigned int> > max_prime;
