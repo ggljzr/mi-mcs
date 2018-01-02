@@ -151,15 +151,26 @@ Tato funkce také vrací nejvyšší prvočíslo ze svého segmentu. Jelikož ne
 
 ```cpp
 cilk_for(unsigned int i = 2; i <= n; i += block_size)
-    {
-        unsigned int to = MIN(n, i + block_size);
-        unsinged int local = process_segment(i, to, &hyper_out);
-        if(to == n)
-            max_prime = local;
-    }
+{
+    unsigned int to = MIN(n, i + block_size);
+    unsinged int local = process_segment(i, to, &hyper_out);
+    if(to == n)
+        max_prime = local;
+}
 ```
+
+Paralelizaci segmentového algoritmu jsem tedy provedl pouze přidáním jednoho `cilk_for` a ošetřením přístupu ke sdíleným zdrojům.
+
+## Závěr
+
+Při paralelizaci algoritmu jsem se snažil využít [serial elision](https://software.intel.com/en-us/blogs/2012/04/07/serial-equivalence-of-cilk-plus-programs) Cilku, tedy implementova sekvenční algoritmus, a vhodným doplněním klíčových slov (`cilk_for`) vytvořit vícevláknovou verzi. 
+
+Tato vlastnost zde není 100% dodržena (například použití reducerů vyžaduje větší zásahy do kódu), nicméně je zachována myšlenka paralelizace sekvenčního algoritmu namísto implementace algoritmu přímo určeného pro paralelní zpracování (kde by například komunikace mezi výpočetními uzly tvořila součást návrhu algoritmu).
 
 ## Odkazy
 
-* [Článek](http://create.stephan-brumme.com/eratosthenes/) o paralelizaci Eratosthenova síta pomocí [OpenMP](http://www.openmp.org/)
+Při tvorbě programu jsem čerpal především z těchto zdrojů:
+
+* [Tutorial](https://www.cilkplus.org/cilk-plus-tutorial) popisující základní vlastnosti Cilku.
+* [Článek](http://create.stephan-brumme.com/eratosthenes/) o paralelizaci Eratosthenova síta pomocí [OpenMP](http://www.openmp.org/), včetně zmíněné segmentace.
 * [Implementace](http://primesieve.org/segmented_sieve.html) segmentovaného Eratosthenova síta, kterou jsem použil jako referenci k ověření výsledků.
