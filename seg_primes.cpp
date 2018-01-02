@@ -71,6 +71,10 @@ unsigned int process_segment(unsigned int from, unsigned int to,
         We need to start crossing out multiples
         for current segment at the first odd
         multiple of i
+
+        when i is greater than from (usualy first block)
+        we start with i^2 like with classic eratosthenes
+        sieve
         */
         unsigned int start = MAX(first_odd_multiple(i, from), i * i);
 
