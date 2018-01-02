@@ -147,7 +147,17 @@ void find_primes_segmented(unsigned int n, unsigned int block_size)
 
 Opět jsem použil reducer pro zápis nalezených čísel. Ten bylo nutné předat funkci zpracovávající zvolený segment (`process_segment()`).
 
-Tato funkce také vrací nejvyšší prvočíslo ze svého segmentu. Jelikož není zaručeno pořadí zpracovávání jednotlivých iterací, pro nalezení maximálního prvočísla jsem použil reducer s operací maxima.
+Tato funkce také vrací nejvyšší prvočíslo ze svého segmentu. Jelikož není zaručeno pořadí zpracovávání jednotlivých iterací, pro nalezení maximálního prvočísla jsem použil reducer s operací maxima. Použití reduceru se zádlo být přibližně stějně rychlé jako uložení maxima pouze z poslední iterace:
+
+```cpp
+cilk_for(unsigned int i = 2; i <= n; i += block_size)
+    {
+        unsigned int to = MIN(n, i + block_size);
+        unsinged int local = process_segment(i, to, &hyper_out);
+        if(to == n)
+            max_prime = local;
+    }
+```
 
 ## Odkazy
 
