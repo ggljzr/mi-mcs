@@ -51,6 +51,9 @@ void find_primes(unsigned int n)
 
     for(unsigned int i = 3; i <= sqrtn; i += 2)
     {
+        //basiclly this:
+        //https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes#Pseudocode
+        //with iteration only trough odd numbers   
         if(sieve[i / 2] == 1)
         {
             /*
