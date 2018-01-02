@@ -88,8 +88,6 @@ void find_primes(unsigned int n)
     	}
     }
 
-    cilk::reducer< cilk::op_add<unsigned int> > primes_count(1);
-
     std::ofstream primes_file(PRIMES_FILE_PATH);
     cilk::reducer_ostream hyper_out(primes_file);
 
@@ -107,13 +105,10 @@ void find_primes(unsigned int n)
         if(sieve[i / 2] == 1)
         {
             *hyper_out << i << std::endl;
-            *primes_count += 1;
        	}
     }
 
     primes_file.close();
-
-    fprintf(stderr, "%d primes found\n", primes_count.get_value());
     printf("prime: %d\n", max_prime);
 
     delete [] sieve;
