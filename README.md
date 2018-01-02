@@ -69,7 +69,7 @@ Paralelizace vnějšího cyklu se nejevila příliš efektivní, pravděpodobně
 
 `cilk_for` jsem také použil k počáteční inicializaci síta jedničkami. Zde se tento způsob zdál rychlejší než použití [Cilk Array Notatnion](https://www.cilkplus.org/tutorial-array-notation), tedy `sieve[0:sieve_size] = 1` nebo použití funkce [memset](http://www.cplusplus.com/reference/cstring/memset/).
 
-Po vytvoření síta je potřeba pole projít a nalezená prvočísla zpsat do souboru. Zde jsem opět použil `cilk_for`. Vzhledem k tomu, že zápis prvočísel je citlivý na zpracování více vlákny, použil jsem k jeho realizaci [reducer](https://www.cilkplus.org/tutorial-cilk-plus-reducers), `reducer_ostream`:
+Po vytvoření síta je potřeba pole projít a nalezená prvočísla zpsat do souboru. Zde jsem opět použil `cilk_for`. Vzhledem k tomu, že zápis prvočísel je citlivý na zpracování více vlákny, použil jsem k jeho realizaci [reducer](https://www.cilkplus.org/tutorial-cilk-plus-reducers), konkrétně `reducer_ostream`:
 
 ```cpp
 std::ofstream primes_file(PRIMES_FILE_PATH);
@@ -118,7 +118,36 @@ Na základě [tohoto článku](http://create.stephan-brumme.com/eratosthenes/) j
 ```
 Protože už algoritmus nemá k dispozici informaci o dosud nalezených prvočíslech (zná pouze svuj segment), je nutné v daném segmentu postupně projít a vyškrtat všechny liché násobky (algoritmus stále pracuje pouze s lichými čísli) čísel v rozsahu `from` -- `to`. To představuje jediný výraznější rozdíl oproti nesegmentovanému algoritmu.
 
+### Velikost segmentu
+
+Při experimentování s velikostí zpracovávaného segmentu se jako nejvýhodnější jevilo použít segmenty s 65536 čísly. Vzhledem k tomu, že algoritmus pracuje pouze se sudými čísly, je v tomto segmentu alokováno pole (`sieve`) o velikosti 32768 bajtů, což odpovídá L1 cache použitého procesoru.
+
 ### Paralelizace segmentovaného algoritmu
+
+Ukázalo se, že paralelizace zpracování jednoho segmentu se příliš nevyplatí, rozhodl jsem se tedy paralelizovat cyklus procházející jednotlivé segmenty:
+
+```cpp
+void find_primes_segmented(unsigned int n, unsigned int block_size)
+{
+    cilk::reducer< cilk::op_max<unsigned int> > max_prime;
+    std::ofstream primes_file(PRIMES_FILE_PATH);
+    cilk::reducer_ostream hyper_out(primes_file);
+
+    *hyper_out << 2 << std::endl;
+
+    cilk_for(unsigned int i = 2; i <= n; i += block_size)
+    {
+        unsigned int to = MIN(n, i + block_size);
+        max_prime->calc_max(process_segment(i, to, &hyper_out));
+    }
+
+    printf("prime: %d\n", max_prime.get_value());
+}
+```
+
+Opět jsem použil reducer pro zápis nalezených čísel. Ten bylo nutné předat funkci zpracovávající zvolený segment (`process_segment()`).
+
+Tato funkce také vrací nejvyšší prvočíslo ze svého segmentu. Jelikož není zaručeno pořadí zpracovávání jednotlivých iterací, pro nalezení maximálního prvočísla jsem použil reducer s operací maxima.
 
 ## Odkazy
 
