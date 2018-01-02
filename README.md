@@ -87,11 +87,11 @@ cilk_for(unsigned int i = 3; i <= max_prime; i+= 2)
 primes_file.close();
 ```
 
-Reducery zajistí výlučný přístup ke zdrojům pomocí paralelní redukce, a cyklus je tedy možné bez obav paralelizovat pomocí `cilk_for`.
+Reducer zajistí výlučný přístup ke zdrojům pomocí paralelní redukce, a cyklus je tedy možné bez obav paralelizovat pomocí `cilk_for`.
 
 ## Segmentovaný algoritmus
 
-Nevýhodou předchozího algoritmu je, že pracuje najednou s velým blokem paměti (pole `sieve`). Ten se zpravidla nejvede do chace procesoru, která je tak využita velmi neefektivně.
+Nevýhodou předchozího algoritmu je, že pracuje najednou s velým blokem paměti (pole `sieve`). Ten se zpravidla nejvede do cache procesoru, která je tak využita velmi neefektivně.
 
 Na základě [tohoto článku](http://create.stephan-brumme.com/eratosthenes/) jsem tedy základní algoritmus upravil tak, aby pracoval pouze s vymezenými bloky čísel:
 
@@ -120,7 +120,7 @@ Protože už algoritmus nemá k dispozici informaci o dosud nalezených prvočí
 
 ### Velikost segmentu
 
-Při experimentování s velikostí zpracovávaného segmentu se jako nejvýhodnější jevilo použít segmenty s 65536 čísly. Vzhledem k tomu, že algoritmus pracuje pouze se sudými čísly, je v tomto segmentu alokováno pole (`sieve`) o velikosti 32768 bajtů, což odpovídá L1 cache použitého procesoru.
+Při experimentování s velikostí zpracovávaného segmentu se jako nejvýhodnější jevilo použít segmenty s 65536 čísly. Vzhledem k tomu, že algoritmus pracuje pouze se sudými čísly, je v tomto segmentu alokováno pole (`sieve`) o velikosti 32768 bajtů, což odpovídá L1 cache použitého procesoru (podle `lscpu`).
 
 ### Paralelizace segmentovaného algoritmu
 
@@ -163,7 +163,7 @@ Paralelizaci segmentového algoritmu jsem tedy provedl pouze přidáním jednoho
 
 ## Závěr
 
-Při paralelizaci algoritmu jsem se snažil využít [serial elision](https://software.intel.com/en-us/blogs/2012/04/07/serial-equivalence-of-cilk-plus-programs) Cilku, tedy implementova sekvenční algoritmus, a vhodným doplněním klíčových slov (`cilk_for`) vytvořit vícevláknovou verzi. 
+Při paralelizaci algoritmu jsem se snažil využít [serial elision](https://software.intel.com/en-us/blogs/2012/04/07/serial-equivalence-of-cilk-plus-programs) Cilku, tedy implementovat sekvenční algoritmus a vhodným doplněním klíčových slov (`cilk_for`) vytvořit vícevláknovou verzi. 
 
 Tato vlastnost zde není 100% dodržena (například použití reducerů vyžaduje větší zásahy do kódu), nicméně je zachována myšlenka paralelizace sekvenčního algoritmu namísto implementace algoritmu přímo určeného pro paralelní zpracování (kde by například komunikace mezi výpočetními uzly tvořila součást návrhu algoritmu).
 
