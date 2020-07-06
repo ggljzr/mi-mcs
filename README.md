@@ -116,7 +116,7 @@ Na základě [tohoto článku](http://create.stephan-brumme.com/eratosthenes/) j
         }
     }
 ```
-Protože už algoritmus nemá k dispozici informaci o dosud nalezených prvočíslech (zná pouze svuj segment), je nutné v daném segmentu postupně projít a vyškrtat všechny liché násobky (algoritmus stále pracuje pouze s lichými čísli) čísel v rozsahu `from` -- `to`. To představuje jediný výraznější rozdíl oproti nesegmentovanému algoritmu.
+Protože už algoritmus nemá k dispozici informaci o dosud nalezených prvočíslech (zná pouze svuj segment), je nutné v daném segmentu postupně projít a vyškrtat všechny liché násobky (algoritmus stále pracuje pouze s lichými čísly) čísel v rozsahu `from` -- `to`. To představuje jediný výraznější rozdíl oproti nesegmentovanému algoritmu.
 
 ### Velikost segmentu
 
